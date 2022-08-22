@@ -1,6 +1,9 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Business.DependencyResolvers.Autofac;
+using Core.DependencyResolvers;
+using Core.Extensions;
+using Core.Utilities.IoC;
 using Core.Utilities.Security.Encryption;
 using Core.Utilities.Security.JWT;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -19,11 +22,6 @@ builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())
     });
 
 
-var tokenIssuer = builder.Configuration.GetSection("TokenOptions").GetSection("Issuer").Value;
-var tokenAudience = builder.Configuration.GetSection("TokenOptions").GetSection("Audience").Value;
-var tokenSecurityKey = builder.Configuration.GetSection("TokenOptions").GetSection("SecurityKey").Value;
-
-
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -32,13 +30,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                         ValidateIssuer = true,
                         ValidateAudience = true,
                         ValidateLifetime = true,
-                        ValidIssuer = tokenIssuer,
-                        ValidAudience = tokenAudience,
+                        ValidIssuer = builder.Configuration.GetSection("TokenOptions").GetSection("Issuer").Value,
+                        ValidAudience = builder.Configuration.GetSection("TokenOptions").GetSection("Audience").Value,
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = SecurityKeyHelper.CreateSecurityKey(tokenSecurityKey)
+                        IssuerSigningKey = SecurityKeyHelper.CreateSecurityKey(builder.Configuration.GetSection("TokenOptions").GetSection("SecurityKey").Value)
                     };
                 });
 
+builder.Services.AddDependencyResolvers(new ICoreModule[]
+{
+    new CoreModule(),
+
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

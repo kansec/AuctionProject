@@ -7,6 +7,7 @@ using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
 using Entities.DTOs;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,11 +21,11 @@ namespace Business.Concrete
         private readonly ICarDal _carDal;
         public CarManager(ICarDal carDal)
         {
-            _carDal = carDal;   
+            _carDal = carDal;
 
         }
 
-        [SecuredOperation("admin")]
+        [SecuredOperation("car.add")]
         [ValidationAspect(typeof(CarValidator))]
         public IResult Add(Car car)
         {
