@@ -20,8 +20,20 @@ namespace Core.Utilities.Security.JWT
         private DateTime _accessTokenExpiration;
         public JwtHelper(IConfiguration configuration)
         {
+
             Configuration = configuration;
-            _tokenOptions = Configuration.GetSection("TokenOptions") as TokenOptions;
+            var tokenIssuer = Configuration.GetSection("TokenOptions").GetSection("Issuer").Value;
+            var tokenAudience = Configuration.GetSection("TokenOptions").GetSection("Audience").Value;
+            var tokenSecurityKey = Configuration.GetSection("TokenOptions").GetSection("SecurityKey").Value;
+            var tokenExpire = Configuration.GetSection("TokenOptions").GetSection("AccessTokenExpiration").Value;
+
+            _tokenOptions = new TokenOptions
+            {
+                Issuer = tokenIssuer,
+                Audience = tokenAudience,
+                SecurityKey = tokenSecurityKey,
+                AccessTokenExpiration = System.Convert.ToInt32(tokenExpire)
+            };
 
         }
         public AccessToken CreateToken(User user, List<OperationClaim> operationClaims)

@@ -19,7 +19,10 @@ builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())
     });
 
 
-var tokenOptions = builder.Configuration.GetSection("TokenOptions") as TokenOptions;
+var tokenIssuer = builder.Configuration.GetSection("TokenOptions").GetSection("Issuer").Value;
+var tokenAudience = builder.Configuration.GetSection("TokenOptions").GetSection("Audience").Value;
+var tokenSecurityKey = builder.Configuration.GetSection("TokenOptions").GetSection("SecurityKey").Value;
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -29,10 +32,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                         ValidateIssuer = true,
                         ValidateAudience = true,
                         ValidateLifetime = true,
-                        ValidIssuer = tokenOptions.Issuer,
-                        ValidAudience = tokenOptions.Audience,
+                        ValidIssuer = tokenIssuer,
+                        ValidAudience = tokenAudience,
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = SecurityKeyHelper.CreateSecurityKey(tokenOptions.SecurityKey)
+                        IssuerSigningKey = SecurityKeyHelper.CreateSecurityKey(tokenSecurityKey)
                     };
                 });
 
